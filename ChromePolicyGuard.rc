@@ -1,0 +1,36 @@
+#include "resource.h"
+#include <windows.h>
+
+// Version information - personalize CompanyName / LegalCopyright as you like.
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION    CPG_VER_NUM
+ PRODUCTVERSION CPG_VER_NUM
+ FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
+#ifdef _DEBUG
+ FILEFLAGS      VS_FF_DEBUG
+#else
+ FILEFLAGS      0x0L
+#endif
+ FILEOS         VOS_NT_WINDOWS32
+ FILETYPE       VFT_APP
+ FILESUBTYPE    VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"          // US English (0x0409), Unicode code page (1200)
+        BEGIN
+            VALUE "CompanyName",      "CodeCutters"
+            VALUE "FileDescription",  "ChromePolicyGuard - Remove Chrome organization policy crap"
+            VALUE "FileVersion",      CPG_VER_STR
+            VALUE "InternalName",     "ChromePolicyGuard"
+            VALUE "LegalCopyright",   "Copyright (C) 2026"
+            VALUE "OriginalFilename", "ChromePolicyGuard.exe"
+            VALUE "ProductName",      "ChromePolicyGuard"
+            VALUE "ProductVersion",   CPG_VER_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

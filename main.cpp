@@ -3,6 +3,7 @@
 #include <tchar.h>
 
 #define SERVICE_NAME _T("ChromePolicyGuard")
+#define SERVICE_DESC _T("Remove organization enforced Chrome policy settings")
 
 SERVICE_STATUS        g_ServiceStatus = { 0 };
 SERVICE_STATUS_HANDLE g_StatusHandle = NULL;
@@ -172,6 +173,19 @@ int _tmain(int argc, _TCHAR* argv[]) {
                         SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
                         path, NULL, NULL, NULL, NULL, NULL);
                     if (svc) {
+                        SERVICE_DESCRIPTION sd;
+                        sd.lpDescription = (LPTSTR)SERVICE_DESC;
+
+                        BOOL bResult = ChangeServiceConfig2(
+                            svc,
+                            SERVICE_CONFIG_DESCRIPTION, // Info level flag
+                            &sd                          // Pointer to SERVICE_DESCRIPTION
+                        );
+
+                        if (!bResult) {
+                            _tprintf(_T("ChangeServiceConfig2 failed (%d)\n"), GetLastError());
+                        }
+
                         StartService(svc, 0, NULL);
                         CloseHandle(svc);
                         _tprintf(_T("Service installed and started successfully.\n"));
