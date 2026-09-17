@@ -1,0 +1,86 @@
+name: build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  msbuild:
+    name: VS x64 ${{ matrix.configuration }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [ Debug, Release ]
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: microsoft/setup-msbuild@v3
+
+      - name: Build
+        run: >
+          msbuild ChromePolicyGuard.sln
+          /p:Configuration=${{ matrix.configuration }}
+          /p:Platform=x64
+          /m
+
+      - name: Check the EXE and its version resource
+        shell: pwsh
+        run: |
+          $out = "x64/${{ matrix.configuration }}/ChromePolicyGuard.exe"
+          if (-not (Test-Path $out)) { throw "missing $out" }
+          $vi = (Get-Item $out).VersionInfo
+          if (-not $vi.FileVersion) { throw "no VERSIONINFO resource in $out" }
+          Get-Item $out | Format-List Name, Length
+          $vi | Format-List FileVersion, ProductVersion, FileDescription
+
+      # NOT a release: CI artifacts expire, need a GitHub login to fetch, and are
+      # unsigned. They exist so a contributor can confirm a change still compiles.
+      - name: Upload build output
+        uses: actions/upload-artifact@v6
+        with:
+          name: ChromePolicyGuard-vs-x64-${{ matrix.configuration }}
+          path: x64/${{ matrix.configuration }}/ChromePolicyGuard.exe
+          retention-days: 7
+          if-no-files-found: error
+
+  cmake:
+    name: CMake x64 ${{ matrix.configuration }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [ Debug, Release ]
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Configure
+        run: cmake -S . -B build -A x64
+
+      - name: Build
+        run: cmake --build build --config ${{ matrix.configuration }} --parallel
+
+      - name: Check the EXE and its version resource
+        shell: pwsh
+        run: |
+          $out = "build/${{ matrix.configuration }}/ChromePolicyGuard.exe"
+          if (-not (Test-Path $out)) { throw "missing $out" }
+          $vi = (Get-Item $out).VersionInfo
+          if (-not $vi.FileVersion) { throw "no VERSIONINFO resource in $out" }
+          Get-Item $out | Format-List Name, Length
+          $vi | Format-List FileVersion, ProductVersion, FileDescription
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v6
+        with:
+          name: ChromePolicyGuard-cmake-x64-${{ matrix.configuration }}
+          path: build/${{ matrix.configuration }}/ChromePolicyGuard.exe
+          retention-days: 7
+          if-no-files-found: error

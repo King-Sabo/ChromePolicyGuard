@@ -1,8 +1,6 @@
 #pragma once
 
-#define IDI_POWERCHK 101
-
-// Version — bump here; the .rc VERSIONINFO (and code, if desired) read these.
+// Version - bump here; the .rc VERSIONINFO (and code, if desired) read these.
 #define CPG_VER_MAJOR 1
 #define CPG_VER_MINOR 0
 #define CPG_VER_PATCH 0
